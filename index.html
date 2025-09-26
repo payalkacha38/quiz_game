@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Quiz Game with Flip Cards & Confetti</title>
+  <style>
+    body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #483161, #32548d);
+    color: #130101;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  .quiz-container {
+    background: #4198ae;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    width: 60%;
+    max-width: 700px;
+    min-height: 450px;
+    animation: fadeIn 0.6s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .progress-bar {
+    height: 15px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .progress {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #2575fc, #6a11cb);
+    transition: width 0.5s ease;
+  }
+
+  .timer {
+    text-align: right;
+    font-size: 1.3em;
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: #ff2929;
+  }
+
+  /* QUESTION */
+  .question {
+    font-size: 1.8em;
+    margin-bottom: 25px;
+    font-weight: bold;
+    color: #fff;
+    padding: 18px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #6a11cb, #002725);
+    text-align: center;
+  }
+
+  /* OPTIONS */
+  .options label {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+    background: #fff;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 12px 18px;
+    transition: all 0.3s ease;
+    font-size: 1.2em;
+    cursor: pointer;
+  }
+
+  .options input[type="radio"],
+  .options input[type="checkbox"] {
+    transform: scale(1.6);
+    margin-right: 15px;
+    cursor: pointer;
+  }
+
+  .options label:hover {
+    background: linear-gradient(90deg, #6a11cb, #2575fc);
+    color: #fff;
+    border-color: #2575fc;
+    transform: scale(1.02);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  }
+
+  input[type="text"] {
+    padding: 12px;
+    width: 100%;
+    font-size: 1.2em;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: 2px solid #ccc;
+    transition: border 0.3s;
+  }
+  input[type="text"]:focus {
+    border-color: #2575fc;
+    outline: none;
+  }
+
+  /* BUTTON */
+  button {
+    background: #012b74;
+    color: #fff;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: all 0.3s;
+    margin: 20px auto 0;
+    display: block;
+  }
+  button:hover {
+    background: #2b0158;
+    transform: scale(1.05);
+  }
+
+  /* RESULT SECTION */
+ .result {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.score-card {
+  margin: 25px auto;      
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  max-width: 550px;
+  text-align: left;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255,255,255,0.3);
+  position: relative;
+  z-index: 10;
+}
+
+  
+
+  .score-summary {
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+    color: #2575fc;
+  }
+
+  .score-details {
+    margin-top: 10px;
+  }
+
+  .score-details p {
+    font-size: 1.1em;
+    margin: 10px 0;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f5f7ff;
+    border-left: 6px solid #2575fc;
+
+    .score-card {
+  margin: 25px auto;       /* center horizontally */
+  padding: 25px;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  max-width: 550px;        /* prevent stretching too wide */
+  text-align: left;        /* text aligned properly */
+}
+
+.result {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+  }
+
+  .correct { color: green; font-weight: bold; }
+  .wrong { color: red; font-weight: bold; }
+</style>
+
+
+  </style>
+</head>
+<body>
+
+<div class="quiz-container">
+  <div class="progress-bar"><div id="progress" class="progress"></div></div>
+  <div id="timer" class="timer"></div>
+  <div id="quiz"></div>
+  <button id="nextBtn">Next</button>
+  <button id="backBtn" style="display:none;">Try Again</button>
+  <div id="result" class="result"></div>
+</div>
+
+<!-- Confetti Script -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+<script>
+const quizData = [
+  { type: "single", question: "Which language runs in a web browser?", options: ["Java", "C", "Python", "JavaScript"], answer: 3 },
+  { type: "multi", question: "Which of the following are programming languages?", options: ["HTML", "CSS", "Python", "C++"], answer: [2, 3] },
+  { type: "fill", question: "_____ is the capital of France.", answer: "Paris" },
+  { type: "single", question: "What does CSS stand for?", options: ["Central Style Sheets","Cascading Style Sheets","Computer Styled Sheets","Creative Style System"], answer: 1 },
+  { type: "fill", question: "The chemical symbol of water is _____.", answer: "H2O" },
+  { type: "multi", question: "Which are JavaScript frameworks/libraries?", options: ["React", "Django", "Angular", "Vue"], answer: [0, 2, 3] },
+  { type: "single", question: "Which company developed Java?", options: ["Microsoft", "Sun Microsystems", "Google", "IBM"], answer: 1 },
+
+  { type: "multi", question: "Which of these are fruits?", options: ["Carrot", "Apple", "Mango", "Potato"], answer: [1, 2] },
+
+  { type: "fill", question: "The largest planet in our solar system is _____.", answer: "Jupiter" },
+
+  { type: "single", question: "What does HTML stand for?", options: ["Hyper Trainer Marking Language","Hyper Text Markup Language","Hyper Text Marketing Language","Hyper Tool Multi Language"], answer: 1 },
+
+  { type: "multi", question: "Which are search engines?", options: ["Google", "Yahoo", "Facebook", "Bing"], answer: [0,1,3] },
+
+  { type: "fill", question: "The square root of 64 is _____.", answer: "8" }
+];
+
+let currentQuestion = 0, score = 0, userAnswers = [], timer, timeLeft = 20;
+
+const quizEl = document.getElementById("quiz");
+const nextBtn = document.getElementById("nextBtn");
+const backBtn = document.getElementById("backBtn");
+const resultEl = document.getElementById("result");
+const progressEl = document.getElementById("progress");
+const timerEl = document.getElementById("timer");
+
+function startTimer() {
+  clearInterval(timer);
+  timeLeft = 20;
+  timerEl.textContent = `⏳ Time left: ${timeLeft}s`;
+  timer = setInterval(()=>{
+    timeLeft--;
+    timerEl.textContent = `⏳ Time left: ${timeLeft}s`;
+    if(timeLeft<=0){clearInterval(timer);flipAndNext();}
+  },1000);
+}
+
+function loadQuestion(){
+  const q = quizData[currentQuestion];
+  quizEl.innerHTML = `
+    <div class="flip-card" id="flipCard">
+      <div class="flip-card-inner">
+        <div class="flip-card-front">
+          <div class="question">${q.question}</div>
+          <div class="options">
+  `;
+  if(q.type==="single") q.options.forEach((opt,i)=>quizEl.innerHTML+=`<label><input type="radio" name="option" value="${i}"> ${opt}</label>`);
+  else if(q.type==="multi") q.options.forEach((opt,i)=>quizEl.innerHTML+=`<label><input type="checkbox" name="option" value="${i}"> ${opt}</label>`);
+  else if(q.type==="fill") quizEl.innerHTML+=`<input type="text" id="fillAnswer" placeholder="Type your answer">`;
+  quizEl.innerHTML+=`</div></div><div class="flip-card-back" id="flipBack"></div></div></div>`;
+  progressEl.style.width = `${(currentQuestion/quizData.length)*100}%`;
+  startTimer();
+}
+
+function checkAnswer(){
+  const q = quizData[currentQuestion];
+  let isCorrect=false,userAnswer;
+  if(q.type==="single"){
+    const selected=document.querySelector("input[name='option']:checked");
+    userAnswer=selected?parseInt(selected.value):null;
+    isCorrect=userAnswer===q.answer;
+  } else if(q.type==="multi"){
+    const selected=[...document.querySelectorAll("input[name='option']:checked")].map(el=>parseInt(el.value));
+    userAnswer=selected.sort();
+    isCorrect=JSON.stringify(userAnswer)===JSON.stringify(q.answer.sort());
+  } else if(q.type==="fill"){
+    userAnswer=document.getElementById("fillAnswer").value.trim();
+    isCorrect=userAnswer.toLowerCase()===q.answer.toLowerCase();
+  }
+  if(isCorrect) score++;
+  userAnswers.push({question:q.question,userAnswer,correctAnswer:q.answer,isCorrect});
+  return isCorrect;
+}
+
+function flipAndNext(){
+  clearInterval(timer);
+  const isCorrect=checkAnswer();
+  const flipCard=document.getElementById("flipCard");
+  const flipBack=document.getElementById("flipBack");
+  flipCard.classList.add("flipped");
+  flipBack.textContent=isCorrect?"✅ Correct!":"❌ Wrong!";
+}
+
+function nextQuestion(){
+  flipAndNext();
+  setTimeout(()=>{
+    currentQuestion++;
+    if(currentQuestion<quizData.length) loadQuestion();
+    else showResults();
+  },1500);
+}
+
+function showResults(){
+  clearInterval(timer);
+  quizEl.innerHTML="";
+  nextBtn.style.display="none";
+  backBtn.style.display="inline-block";
+
+  resultEl.innerHTML = `
+    <div class="score-card">
+      <div class="score-summary">🎉 You scored ${score} / ${quizData.length}</div>
+      <div class="score-details">
+        ${userAnswers.map((ans,i)=>`
+          <p><b>Q${i+1}:</b> ${ans.question}<br>
+          ${ans.isCorrect ? `<span class="correct">✔ Correct</span>` 
+                          : `<span class="wrong">✖ Wrong</span>`}
+          </p>
+        `).join("")}
+      </div>
+    </div>
+  `;
+
+  if(score/quizData.length >=0.8) {
+    confetti({particleCount:150,spread:70,origin:{y:0.6}});
+  }
+
+  progressEl.style.width=`100%`;
+}
+
+function restartQuiz(){
+  currentQuestion=0; score=0; userAnswers=[];
+  resultEl.innerHTML="";
+  nextBtn.style.display="inline-block";
+  backBtn.style.display="none";
+  loadQuestion();
+}
+
+nextBtn.addEventListener("click",nextQuestion);
+backBtn.addEventListener("click",restartQuiz);
+
+loadQuestion();
+</script>
+
+</body>
+</html>
