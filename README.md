@@ -27,11 +27,13 @@ This game features single-choice, multiple-choice, and fill-in-the-blank questio
 1. Clone the repository:
    ```bash
    git clone https://github.com/payalkacha38/quiz_game.git
+
 Open index.html in your browser.
 (No server required — everything runs client-side.)
 
 🌍 Deployment
 GitHub Pages
+
 Push your code to GitHub.
 
 Go to Settings → Pages.
@@ -39,7 +41,9 @@ Go to Settings → Pages.
 Select main branch and /root.
 
 Your app will be live at:
+
 https://payalkacha38.github.io/quiz_game/
 
 📜 License
-This project is open source and available under the MIT License.
+
+This project is open source and available under the MIT License
