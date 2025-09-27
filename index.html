@@ -192,6 +192,90 @@
 
   .correct { color: green; font-weight: bold; }
   .wrong { color: red; font-weight: bold; }
+    /* 📱 RESPONSIVE DESIGN */
+@media (max-width: 1024px) {  /* Tablets & small laptops */
+  .quiz-container {
+    width: 80%;
+    padding: 25px;
+  }
+
+  .question {
+    font-size: 1.5em;
+    padding: 15px;
+  }
+
+  .options label {
+    font-size: 1.1em;
+    padding: 10px 15px;
+  }
+}
+
+@media (max-width: 768px) {  /* Tablets & large phones */
+  .quiz-container {
+    width: 90%;
+    min-height: auto;
+    padding: 20px;
+  }
+
+  .question {
+    font-size: 1.3em;
+    margin-bottom: 20px;
+  }
+
+  .options label {
+    font-size: 1em;
+    padding: 10px 12px;
+  }
+
+  button {
+    width: 100%;
+    font-size: 1.1em;
+    padding: 12px;
+  }
+
+  .timer {
+    font-size: 1.1em;
+  }
+}
+
+@media (max-width: 480px) {  /* Mobile phones */
+  body {
+    padding: 10px;
+  }
+
+  .quiz-container {
+    width: 100%;
+    padding: 15px;
+    border-radius: 12px;
+  }
+
+  .question {
+    font-size: 1.1em;
+    padding: 12px;
+  }
+
+  .options label {
+    font-size: 0.95em;
+    padding: 8px 10px;
+    flex-direction: row;
+  }
+
+  input[type="text"] {
+    font-size: 1em;
+    padding: 10px;
+  }
+
+  button {
+    font-size: 1em;
+    padding: 10px;
+  }
+
+  .score-card {
+    padding: 15px;
+    font-size: 0.95em;
+  }
+}
+
 </style>
 
 
@@ -350,3 +434,4 @@ loadQuestion();
 
 </body>
 </html>
+
